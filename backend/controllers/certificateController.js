@@ -4,7 +4,7 @@ const Student = require('../models/Student');
 const imagekit = require('../utils/imagekit');
 const fs = require('fs');
 
-// Upload a new certificate
+// Upload certificate
 exports.uploadCertificate = async (req, res) => {
   try {
     const { categoryId, subcategoryName, level } = req.body;
@@ -19,24 +19,25 @@ exports.uploadCertificate = async (req, res) => {
       file: fileBuffer,
       fileName: req.file.originalname,
     });
-
-    fs.unlinkSync(req.file.path); // delete local file
+    fs.unlinkSync(req.file.path); // remove local temp file
 
     const documentUrl = uploadedFile.url;
 
+    // Find category and subcategory
     const category = await Category.findById(categoryId);
-    if (!category) {
-      return res.status(404).json({ message: 'Category not found' });
-    }
+    if (!category) return res.status(404).json({ message: 'Category not found' });
 
-    const sub = category.subcategories.find(
-      s => s.name === subcategoryName && (!level || s.level === level)
-    );
+    const sub = category.subcategories.find(sub => {
+      if (sub.name !== subcategoryName) return false;
+      if (!sub.level && !level) return true; // no level in both
+      return sub.level === level; // must match
+    });
 
     if (!sub) {
       return res.status(404).json({ message: 'Subcategory not found' });
     }
 
+    // Create certificate
     const certificate = new Certificate({
       student: req.user.id,
       category: category._id,
@@ -58,7 +59,7 @@ exports.uploadCertificate = async (req, res) => {
   }
 };
 
-// Get all certificates uploaded by the current student
+// Get student's own certificates
 exports.getMyCertificates = async (req, res) => {
   try {
     const certs = await Certificate.find({ student: req.user.id }).populate('category');
@@ -68,7 +69,7 @@ exports.getMyCertificates = async (req, res) => {
   }
 };
 
-// Get all pending certificates for tutor review
+// Get pending certificates (for tutors)
 exports.getPendingCertificates = async (req, res) => {
   try {
     const certificates = await Certificate.find({ status: 'Pending' })
@@ -81,7 +82,7 @@ exports.getPendingCertificates = async (req, res) => {
   }
 };
 
-// Approve or Reject a certificate
+// Review (approve/reject) certificate
 exports.reviewCertificate = async (req, res) => {
   const { certificateId } = req.params;
   const { status, remarks, updatedPoints } = req.body;
@@ -99,7 +100,6 @@ exports.reviewCertificate = async (req, res) => {
     cert.status = status;
     cert.tutorRemarks = remarks || '';
 
-    // Only override points if tutor gives a value
     if (typeof updatedPoints === 'number') {
       cert.assignedPoints = updatedPoints;
     }

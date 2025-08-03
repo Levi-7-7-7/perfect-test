@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const tutorRoutes = require('./routes/tutorRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const certificateRoutes = require('./routes/certificateRoutes');
+const certificateRoutes = require('./routes/fix');
 
 const app = express();
 
@@ -21,6 +22,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tutors', tutorRoutes); // ✅ keep only this one
 app.use('/api/categories', categoryRoutes);
 app.use('/api/certificates', certificateRoutes);
+app.use('/api/fix', require('./routes/fix')); // adjust path if needed
+
 
 // MongoDB connection
 mongoose
