@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const tutorController = require('../controllers/tutorController');
-const authenticateTutor = require('../middleware/authenticateTutor');
+const authenticateTutor = require('../middleware/tutorMiddleware');
 const {
   getPendingCertificates,
   reviewCertificate
