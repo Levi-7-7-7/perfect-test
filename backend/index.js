@@ -9,7 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const tutorRoutes = require('./routes/tutorRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const certificateRoutes = require('./routes/certificateRoutes');
-const fixRoutes = require('./routes/fix');
+//const fixRoutes = require('./routes/fix');
 const app = express();
 
 // Middleware
@@ -21,7 +21,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tutors', tutorRoutes); // ✅ keep only this one
 app.use('/api/categories', categoryRoutes);
 app.use('/api/certificates', certificateRoutes);
-app.use('/api/fix', fixRoutes); // adjust path if needed
+//app.use('/api/fix', fixRoutes); // adjust path if needed
 
 
 // MongoDB connection
